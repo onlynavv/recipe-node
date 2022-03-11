@@ -30,6 +30,10 @@ async function createNewRecipe(data){
     return await client.db("recipe").collection("recipies").insertOne(data)
 }
 
+async function updateRecipeDetail(data, id){
+    return await client.db("recipe").collection("recipies").updateOne({"_id":ObjectId(id)}, {$set:{"recipeName":data.recipeName, "servings": data.servings, "totalTime":data.totalTime, "recipeCat":data.recipeCat, "recipeDescription":data.recipeDescription, "ingredientsList": data.ingredientsList, "instructionList": data.instructionList, "recipePic": data.recipePic}}, {upsert:true})
+}
+
 async function getAllRecipies(){
     return await client.db("recipe").collection("recipies").find({}).sort({postedAt: -1}).toArray()
 }
@@ -94,6 +98,26 @@ async function getRecipeDetailsById(id){
     return await client.db("recipe").collection("recipies").findOne({_id:ObjectId(id)})
 }
 
+async function getSingleUserRecipies(id){
+    return await client.db("recipe").collection("recipies").find({authorId:id}).sort({postedAt: -1}).toArray()
+}
+
+async function submitReviews(id, data){
+    return await client.db("recipe").collection("recipies").updateOne({_id:ObjectId(id)},{$push:{"reviews":data}}, {upsert:true})
+}
+
+async function addToFavourites(userId, data){
+    return await client.db("recipe").collection("users").updateOne({_id:ObjectId(userId)}, {$push:{"favourites":data}}, {upsert:true})
+}
+
+async function removeFavourites(userId, id){
+    return await client.db("recipe").collection("users").updateOne({_id:ObjectId(userId)}, {$pull:{"favourites":{_id:ObjectId(id)}}})
+}
+
+async function getFavoritesRecipies(userId){
+    return await client.db("recipe").collection("users").findOne({_id:ObjectId(userId)}, {projection:{"favourites":1}})
+}
+
 async function getUserByEmail(email){
     return await client.db("recipe").collection("users").findOne({email:email})
 }
@@ -111,4 +135,4 @@ async function createUser(data) {
     return await client.db("recipe").collection("users").insertOne(data);
 }
 
-export {addIngredientType, addIngredientsForType, createRecipeCategory, getRecipeCategory, getUserByEmail, genPassword, createUser, getAllIngredients, createNewRecipe, getAllRecipies, getLimitedRecipies, getUserCreatedRecipies, getUserCreatedLimitedRecipies, getAllRecipiesForCategory, getLimitedRecipeCategory, getBiryaniCatRecipies, getLimitedBiryaniCatRecipies, getCakeCatRecipies, getLimitedCakeCatRecipies, getHealthyCatRecipies, getLimitedHealthyCatRecipies, getRecipiesUnder30M, getLimitedRecipiesUnder30M, getRecipiesUnder10M, getLimitedRecipiesUnder10M, getRecipeDetailsById}
+export {addIngredientType, addIngredientsForType, createRecipeCategory, getRecipeCategory, getUserByEmail, genPassword, createUser, getAllIngredients, createNewRecipe, getAllRecipies, getLimitedRecipies, getUserCreatedRecipies, getUserCreatedLimitedRecipies, getAllRecipiesForCategory, getLimitedRecipeCategory, getBiryaniCatRecipies, getLimitedBiryaniCatRecipies, getCakeCatRecipies, getLimitedCakeCatRecipies, getHealthyCatRecipies, getLimitedHealthyCatRecipies, getRecipiesUnder30M, getLimitedRecipiesUnder30M, getRecipiesUnder10M, getLimitedRecipiesUnder10M, getRecipeDetailsById, getSingleUserRecipies, submitReviews, updateRecipeDetail, addToFavourites, removeFavourites, getFavoritesRecipies }

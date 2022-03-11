@@ -1,6 +1,7 @@
 import express, { response } from "express"
+import { ObjectId } from "mongodb"
 import { auth } from "./customauth.js"
-import { addIngredientType, addIngredientsForType, createRecipeCategory, getRecipeCategory, getAllIngredients, createNewRecipe, getAllRecipies, getLimitedRecipies, getUserCreatedRecipies, getUserCreatedLimitedRecipies, getAllRecipiesForCategory, getLimitedRecipeCategory, getBiryaniCatRecipies, getLimitedBiryaniCatRecipies, getCakeCatRecipies, getLimitedCakeCatRecipies, getHealthyCatRecipies, getLimitedHealthyCatRecipies, getRecipiesUnder30M , getLimitedRecipiesUnder30M, getRecipiesUnder10M, getLimitedRecipiesUnder10M, getRecipeDetailsById} from "./helper.js"
+import { addIngredientType, addIngredientsForType, createRecipeCategory, getRecipeCategory, getAllIngredients, createNewRecipe, getAllRecipies, getLimitedRecipies, getUserCreatedRecipies, getUserCreatedLimitedRecipies, getAllRecipiesForCategory, getLimitedRecipeCategory, getBiryaniCatRecipies, getLimitedBiryaniCatRecipies, getCakeCatRecipies, getLimitedCakeCatRecipies, getHealthyCatRecipies, getLimitedHealthyCatRecipies, getRecipiesUnder30M , getLimitedRecipiesUnder30M, getRecipiesUnder10M, getLimitedRecipiesUnder10M, getRecipeDetailsById, getSingleUserRecipies, submitReviews, updateRecipeDetail, addToFavourites, removeFavourites, getFavoritesRecipies } from "./helper.js"
 const router = express.Router()
 
 router.route("/addIngredientType")
@@ -42,6 +43,13 @@ router.route("/getLimitedRecipeCategory")
 router.route("/createNewRecipe")
 .post(auth ,async (request, response)=>{
     const result = await createNewRecipe({...request.body, servings: parseInt(request.body.servings), totalTime: parseInt(request.body.totalTime) ,reviews:[], postedAt: new Date().toISOString()})
+    response.send(result)
+})
+
+router.route("/editRecipeDetail/:id")
+.put(auth, async(request, response)=>{
+    const {id} = request.params
+    const result = await updateRecipeDetail({...request.body, servings: parseInt(request.body.servings), totalTime: parseInt(request.body.totalTime)}, id)
     response.send(result)
 })
 
@@ -142,6 +150,45 @@ router.route("/getRecipeDetailsById/:id")
 .get(async (request, response)=>{
     const {id} = request.params
     const result = await getRecipeDetailsById(id)
+    response.send(result)
+})
+
+router.route("/getSingleUserRecipies/:id")
+.get(async (request, response)=>{
+    const {id} = request.params
+    const result = await getSingleUserRecipies(id)
+    response.send(result)
+})
+
+router.route("/submitReview/:id")
+.put(auth, async (request, response)=>{
+    const {id} = request.params
+    const result = await submitReviews(id, {...request.body, postedAt: new Date(), reviewId:ObjectId().toString()})
+    response.send(result)
+})
+
+router.route("/addToFavourites/:id")
+.put(auth, async(request, response)=>{
+    const {id} = request.params
+    const userId = request.user.id
+    const result = await getRecipeDetailsById(id)
+    const data = await addToFavourites(userId, result)
+    response.send(data)
+})
+
+
+router.route("/removeFavourites/:id")
+.put(auth, async(request, response)=>{
+    const {id} = request.params
+    const userId = request.user.id
+    const data = await removeFavourites(userId, id)
+    response.send(data)
+})
+
+router.route("/getUsersFavorites")
+.get(auth, async(request, response)=>{
+    const userId = request.user.id
+    const result = await getFavoritesRecipies(userId)
     response.send(result)
 })
 
