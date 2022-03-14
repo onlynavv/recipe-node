@@ -1,7 +1,7 @@
 import express, { response } from "express"
 import { ObjectId } from "mongodb"
 import { auth } from "./customauth.js"
-import { addIngredientType, addIngredientsForType, createRecipeCategory, getRecipeCategory, getAllIngredients, createNewRecipe, getAllRecipies, getLimitedRecipies, getUserCreatedRecipies, getUserCreatedLimitedRecipies, getAllRecipiesForCategory, getLimitedRecipeCategory, getBiryaniCatRecipies, getLimitedBiryaniCatRecipies, getCakeCatRecipies, getLimitedCakeCatRecipies, getHealthyCatRecipies, getLimitedHealthyCatRecipies, getRecipiesUnder30M , getLimitedRecipiesUnder30M, getRecipiesUnder10M, getLimitedRecipiesUnder10M, getRecipeDetailsById, getSingleUserRecipies, submitReviews, updateRecipeDetail, addToFavourites, removeFavourites, getFavoritesRecipies } from "./helper.js"
+import { addIngredientType, addIngredientsForType, createRecipeCategory, getRecipeCategory, getAllIngredients, createNewRecipe, getAllRecipies, getLimitedRecipies, getUserCreatedRecipies, getUserCreatedLimitedRecipies, getAllRecipiesForCategory, getLimitedRecipeCategory, getBiryaniCatRecipies, getLimitedBiryaniCatRecipies, getCakeCatRecipies, getLimitedCakeCatRecipies, getHealthyCatRecipies, getLimitedHealthyCatRecipies, getRecipiesUnder30M , getLimitedRecipiesUnder30M, getRecipiesUnder10M, getLimitedRecipiesUnder10M, getRecipeDetailsById, getSingleUserRecipies, submitReviews, updateRecipeDetail, addToFavourites, removeFavourites, getFavoritesRecipies, getAllIngredientsByCategory, addToPantry, getPantryDetails, updateIngPantryInfo, removeIngPartyInfo } from "./helper.js"
 const router = express.Router()
 
 router.route("/addIngredientType")
@@ -189,6 +189,42 @@ router.route("/getUsersFavorites")
 .get(auth, async(request, response)=>{
     const userId = request.user.id
     const result = await getFavoritesRecipies(userId)
+    response.send(result)
+})
+
+router.route("/getAllIngredientsByCategory")
+.get(async(request, response)=>{
+    const result = await getAllIngredientsByCategory()
+    response.send(result)
+})
+
+router.route("/addToPantry")
+.put(auth, async(request, response)=>{
+    const userId = request.user.id
+    const result = await addToPantry(request.body, userId)
+    response.send(result)
+})
+
+router.route("/getPantryDetails")
+.get(auth, async(request, response)=>{
+    const userId = request.user.id
+    const result = await getPantryDetails(userId)
+    response.send(result)
+})
+
+router.route("/editIngPantryInfo/:id")
+.put(auth, async(request, response)=>{
+    const {id} = request.params
+    const userId = request.user.id
+    const result = await updateIngPantryInfo(request.body, id, userId)
+    response.send(result)
+})
+
+router.route("/deleteIngPantryInfo/:id")
+.put(auth, async(request, response)=>{
+    const {id} = request.params
+    const userId = request.user.id
+    const result = await removeIngPartyInfo(id, userId)
     response.send(result)
 })
 
